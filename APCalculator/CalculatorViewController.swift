@@ -11,10 +11,28 @@ import XCGLogger
 
 class CalculatorViewController: UIViewController {
     
+    var userIsInTheMiddleOfTypingANumber: Bool = false
+    
+    var operandStack = [Double]()
+    
+    var displayValue: Double {
+        
+        get {
+            
+            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+            
+        }
+        
+        set {
+            
+            display.text = "\(newValue)"
+            userIsInTheMiddleOfTypingANumber = false
+            
+        }
+        
+    }
     
     @IBOutlet weak var display: UILabel!
-    
-    var userIsInTheMiddleOfTypingANumber: Bool = false
     
     @IBAction func appendDigit(sender: UIButton) {
         
@@ -38,6 +56,64 @@ class CalculatorViewController: UIViewController {
 
         log.debug("Finished!")
         
+    }
+    
+    @IBAction func enter() {
+       
+        log.debug("Started!")
+        
+        userIsInTheMiddleOfTypingANumber = false
+        
+        operandStack.append(displayValue)
+        
+        log.debug("Operand Stack = \(operandStack)")
+        
+        log.debug("Finished!")
+        
+    }
+    
+    @IBAction func operate(sender: UIButton) {
+        
+        log.debug("Started!")
+        
+        let operation = sender.currentTitle!
+        
+        switch operation {
+            
+        case "×": performOperation{ $0 * $1 }
+        case "÷": performOperation{ $1 / $0 }
+        case "−": performOperation{ $1 - $0 }
+        case "+": performOperation{ $0 + $1 }
+        case "√": performUrinaryOperation{sqrt($0)}
+        
+        default: break
+            
+        }
+        
+        log.debug("Finished!")
+        
+    }
+    
+    func performOperation(operation: (Double, Double) -> Double) {
+        
+        if operandStack.count >= 2 {
+            
+            displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
+            enter()
+            
+        }
+        
+    }
+    
+    func performUrinaryOperation(operation: Double -> Double) {
+        
+        if operandStack.count >= 1 {
+            
+            displayValue = operation(operandStack.removeLast())
+            enter()
+            
+        }
+
     }
 
     override func viewDidLoad() {
