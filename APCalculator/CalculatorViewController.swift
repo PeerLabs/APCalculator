@@ -76,6 +76,12 @@ class CalculatorViewController: UIViewController {
         
         log.debug("Started!")
         
+        if userIsInTheMiddleOfTypingANumber {
+            
+            enter()
+            
+        }
+        
         let operation = sender.currentTitle!
         
         switch operation {
