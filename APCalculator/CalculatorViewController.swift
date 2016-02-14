@@ -13,8 +13,21 @@ class CalculatorViewController: UIViewController {
     
     var userIsInTheMiddleOfTypingANumber: Bool = false
     
+    var userHasTypedDecimal: Bool = false {
+        
+        willSet {
+            
+            self.decimalButton.enabled = !newValue
+            
+        }
+        
+    }
+
+    
     var operandStack = [Double]()
     
+    
+    //Computed Property
     var displayValue: Double {
         
         get {
@@ -23,6 +36,7 @@ class CalculatorViewController: UIViewController {
             
         }
         
+        //hardly gets called
         set {
             
             display.text = "\(newValue)"
@@ -30,9 +44,14 @@ class CalculatorViewController: UIViewController {
             
         }
         
+        
     }
     
+    var history: String = "History:"
+    
     @IBOutlet weak var display: UILabel!
+    
+    @IBOutlet weak var decimalButton: UIButton!
     
     @IBAction func appendDigit(sender: UIButton) {
         
@@ -40,20 +59,63 @@ class CalculatorViewController: UIViewController {
         
         let digit = sender.currentTitle!
         
-        log.debug("Digit = \(digit)")
+        log.debug("Digit \(digit) Pressed!")
         
-        if userIsInTheMiddleOfTypingANumber {
+        switch digit {
+    
+        case ".":
             
-            display.text = display.text! + digit
+            if !userHasTypedDecimal {
             
-        } else {
+                userHasTypedDecimal = true
             
-            display.text = digit
+            }
             
-            userIsInTheMiddleOfTypingANumber = true
+            if !userIsInTheMiddleOfTypingANumber {
+                
+                display.text = "0" + digit
+                
+                userIsInTheMiddleOfTypingANumber = true
+                
+            } else {
+                
+                display.text = display.text! + digit
+                
+            }
+            
+        case "∏":
+            
+            if userIsInTheMiddleOfTypingANumber {
+                
+                display.text = display.text! + "\(M_PI)"
+                
+            } else {
+                
+                display.text = "\(M_PI)"
+                
+                userIsInTheMiddleOfTypingANumber = true
+                
+            }
+
+
+        default:
+            
+            if userIsInTheMiddleOfTypingANumber {
+                
+                display.text = display.text! + digit
+                
+            } else {
+                
+                display.text = digit
+                
+                userIsInTheMiddleOfTypingANumber = true
+                
+            }
             
         }
-
+        
+        log.debug("Display Value: \(displayValue)")
+        
         log.debug("Finished!")
         
     }
@@ -63,6 +125,7 @@ class CalculatorViewController: UIViewController {
         log.debug("Started!")
         
         userIsInTheMiddleOfTypingANumber = false
+        userHasTypedDecimal = false
         
         operandStack.append(displayValue)
         
@@ -91,6 +154,8 @@ class CalculatorViewController: UIViewController {
         case "−": performOperation{ $1 - $0 }
         case "+": performOperation{ $0 + $1 }
         case "√": performUrinaryOperation{sqrt($0)}
+        case "Sin": performUrinaryOperation{sin($0)}
+        case "Cos": performUrinaryOperation{cos($0)}
         
         default: break
             
@@ -100,6 +165,20 @@ class CalculatorViewController: UIViewController {
         
     }
     
+    @IBAction func cancel() {
+        
+        log.debug("Started!")
+        
+        userIsInTheMiddleOfTypingANumber = false
+        userHasTypedDecimal = false
+        
+        operandStack.removeAll()
+        
+        display.text = "0"
+        
+        log.debug("Finished!")
+    }
+
     func performOperation(operation: (Double, Double) -> Double) {
         
         if operandStack.count >= 2 {
