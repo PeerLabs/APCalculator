@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import XCGLogger
 
 class CalculatorViewController: UIViewController {
     
@@ -22,10 +21,8 @@ class CalculatorViewController: UIViewController {
         }
         
     }
-
     
-    var operandStack = [Double]()
-    
+    var brain = CalculatorBrain()
     
     //Computed Property
     var displayValue: Double {
@@ -50,6 +47,8 @@ class CalculatorViewController: UIViewController {
     var history: String = "History:"
     
     @IBOutlet weak var display: UILabel!
+    
+    @IBOutlet weak var historyLabel: UILabel!
     
     @IBOutlet weak var decimalButton: UIButton!
     
@@ -127,9 +126,30 @@ class CalculatorViewController: UIViewController {
         userIsInTheMiddleOfTypingANumber = false
         userHasTypedDecimal = false
         
-        operandStack.append(displayValue)
+        //operandStack.append(displayValue)
         
-        log.debug("Operand Stack = \(operandStack)")
+        //log.debug("Operand Stack = \(operandStack)")
+        
+        if let result = brain.pushOperand(displayValue) {
+            
+            displayValue = result
+            
+        } else {
+            
+            //TODO: handle nil case
+            
+            displayValue = 0
+            
+        }
+        
+        if let resultHistory = brain.history()  {
+            
+            historyLabel.text = resultHistory
+            
+        } else {
+            
+            historyLabel.text = "No History"
+        }
         
         log.debug("Finished!")
         
@@ -145,21 +165,31 @@ class CalculatorViewController: UIViewController {
             
         }
         
-        let operation = sender.currentTitle!
-        
-        switch operation {
+        if let operation = sender.currentTitle {
             
-        case "×": performOperation{ $0 * $1 }
-        case "÷": performOperation{ $1 / $0 }
-        case "−": performOperation{ $1 - $0 }
-        case "+": performOperation{ $0 + $1 }
-        case "√": performUrinaryOperation{sqrt($0)}
-        case "Sin": performUrinaryOperation{sin($0)}
-        case "Cos": performUrinaryOperation{cos($0)}
-        
-        default: break
+            if let result = brain.performOperation(operation) {
+                
+                displayValue = result
+            
+            } else {
+                
+                //TODO: handle nil case
+                
+                displayValue = 0
+                
+            }
             
         }
+        
+        if let resultHistory = brain.history()  {
+            
+            historyLabel.text = resultHistory
+            
+        } else {
+            
+            historyLabel.text = "No History"
+        }
+
         
         log.debug("Finished!")
         
@@ -172,33 +202,11 @@ class CalculatorViewController: UIViewController {
         userIsInTheMiddleOfTypingANumber = false
         userHasTypedDecimal = false
         
-        operandStack.removeAll()
+        brain.clearOpStack()
         
         display.text = "0"
         
         log.debug("Finished!")
-    }
-
-    func performOperation(operation: (Double, Double) -> Double) {
-        
-        if operandStack.count >= 2 {
-            
-            displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
-            enter()
-            
-        }
-        
-    }
-    
-    func performUrinaryOperation(operation: Double -> Double) {
-        
-        if operandStack.count >= 1 {
-            
-            displayValue = operation(operandStack.removeLast())
-            enter()
-            
-        }
-
     }
 
     override func viewDidLoad() {
