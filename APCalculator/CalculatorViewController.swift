@@ -16,7 +16,7 @@ class CalculatorViewController: UIViewController {
         
         willSet {
             
-            self.decimalButton.enabled = !newValue
+            self.decimalButton.isEnabled = !newValue
             
         }
         
@@ -29,7 +29,7 @@ class CalculatorViewController: UIViewController {
         
         get {
             
-            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+            return NumberFormatter().number(from: display.text!)!.doubleValue
             
         }
         
@@ -52,7 +52,7 @@ class CalculatorViewController: UIViewController {
     
     @IBOutlet weak var decimalButton: UIButton!
     
-    @IBAction func appendDigit(sender: UIButton) {
+    @IBAction func appendDigit(_ sender: UIButton) {
         
         log.debug("Started!")
         
@@ -155,7 +155,7 @@ class CalculatorViewController: UIViewController {
         
     }
     
-    @IBAction func operate(sender: UIButton) {
+    @IBAction func operate(_ sender: UIButton) {
         
         log.debug("Started!")
         
