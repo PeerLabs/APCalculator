@@ -4,5 +4,6 @@ use_frameworks!
 
 
 target 'APCalculator' do
-	pod 'XCGLogger', '~> 3.3'
+	pod 'XCGLogger', '~> 5.0.1'
+    pod 'XCGLogger/UserInfoHelpers', '~> 5.0.1'
 end

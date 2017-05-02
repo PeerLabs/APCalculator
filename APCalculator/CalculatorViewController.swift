@@ -86,11 +86,11 @@ class CalculatorViewController: UIViewController {
             
             if userIsInTheMiddleOfTypingANumber {
                 
-                display.text = display.text! + "\(M_PI)"
+                display.text = display.text! + "\(Double.pi)"
                 
             } else {
                 
-                display.text = "\(M_PI)"
+                display.text = "\(Double.pi)"
                 
                 userIsInTheMiddleOfTypingANumber = true
                 
@@ -130,7 +130,7 @@ class CalculatorViewController: UIViewController {
         
         //log.debug("Operand Stack = \(operandStack)")
         
-        if let result = brain.pushOperand(displayValue) {
+        if let result = brain.pushOperand(operand: displayValue) {
             
             displayValue = result
             
@@ -167,7 +167,7 @@ class CalculatorViewController: UIViewController {
         
         if let operation = sender.currentTitle {
             
-            if let result = brain.performOperation(operation) {
+            if let result = brain.performOperation(symbol: operation) {
                 
                 displayValue = result
             

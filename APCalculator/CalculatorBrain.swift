@@ -13,7 +13,7 @@ class CalculatorBrain {
     private enum Op : CustomStringConvertible {
         
         case Operand(Double)
-        case UnaryOperation(String, Double -> Double)
+        case UnaryOperation(String, (Double) -> Double)
         case BinaryOperation(String, Int, (Double, Double) -> Double)
         
         var description: String {
@@ -103,7 +103,7 @@ class CalculatorBrain {
                 
             case Op.UnaryOperation(_, let operation):
                 
-                let operandEvaluation = evaluate(remainingOps)
+                let operandEvaluation = evaluate(ops: remainingOps)
                 
                 if let operand = operandEvaluation.result {
                     
@@ -115,11 +115,11 @@ class CalculatorBrain {
                 
             case Op.BinaryOperation(_, _, let operation):
                 
-                let op1Evaluation = evaluate(remainingOps)
+                let op1Evaluation = evaluate(ops: remainingOps)
                 
                 if let op1 = op1Evaluation.result {
                     
-                    let op2Evaluation = evaluate(op1Evaluation.remainingOps)
+                    let op2Evaluation = evaluate(ops: op1Evaluation.remainingOps)
                     
                     if let op2 = op2Evaluation.result {
                         
@@ -146,9 +146,9 @@ class CalculatorBrain {
         
         log.debug("Started!")
         
-        let (result, remainder) = evaluate(opStack)
+        let (result, remainder) = evaluate(ops: opStack)
         
-        log.debug("DEBUG OUTPUT: OPSTACK \(opStack) = \(result) with \(remainder) left over")
+        log.debug("DEBUG OUTPUT: OPSTACK \(opStack) = \(String(describing: result)) with \(remainder) left over")
         
         log.debug("Finished!")
         
@@ -311,7 +311,7 @@ class CalculatorBrain {
                 
             case .UnaryOperation(let symbol, _):
                 
-                let (result, remainingOps, _) = history(remainingOps)
+                let (result, remainingOps, _) = history(ops: remainingOps)
                 
                 log.debug("Finished!")
                 
@@ -319,8 +319,8 @@ class CalculatorBrain {
                 
             case .BinaryOperation(let symbol, let precedence, _):
                 
-                let history1 = history(remainingOps)
-                let history2 = history(history1.remainingOps)
+                let history1 = history(ops: remainingOps)
+                let history2 = history(ops: history1.remainingOps)
                 
                 var result1 = history1.result
                 var result2 = history2.result
@@ -367,7 +367,7 @@ class CalculatorBrain {
             
             log.debug("Finished!")
             
-            return history(opStack).result
+            return history(ops: opStack).result
             
         }
         
